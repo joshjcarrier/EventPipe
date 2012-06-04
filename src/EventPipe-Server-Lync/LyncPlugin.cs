@@ -3,34 +3,45 @@
     using System;
     using System.Configuration;
     using System.Diagnostics;
-    using System.IO.Ports;
+    using System.Linq;
     using EventPipe.Common.Data;
+    using EventPipe.Server.EventMessaging;
     using Microsoft.Lync.Model;
 
     public class LyncPlugin
     {
-        private static SerialPort serialPort;
+        private readonly RawPublishEventMessenger publishEventMessenger;
+        private readonly TraceEventMessenger traceEventMessenger;
 
-        public LyncPlugin()
+        public LyncPlugin(RawPublishEventMessenger publishEventMessenger, TraceEventMessenger traceEventMessenger)
         {
-            // TODO move serial port stuff out of this
-            // TODO have this raise events to a central event aggregator
-            serialPort = new SerialPort("COM3", 9600, Parity.None, 8, StopBits.One);
-            serialPort.Open();
-
-            for (int i = 0; i < ConfigurationManager.AppSettings.Count; i++)
+            this.publishEventMessenger = publishEventMessenger;
+            this.traceEventMessenger = traceEventMessenger;
+            
+            foreach (var contactConfig in ConfigurationManager.AppSettings.AllKeys.Where(p => p.StartsWith("contact", StringComparison.OrdinalIgnoreCase)))
             {
-                var contact = ConfigurationManager.AppSettings["contact" + i];
-                registerStatus(contact + "@micro" + "soft.com");
+                var contact = ConfigurationManager.AppSettings[contactConfig];
+                var contactAddress = contact + "@micro" + "soft.com";
+                registerStatus(contactAddress);
+                traceEventMessenger.Publish(new TraceMessage { Owner = "Lync", Message = "Contact registered: " + contactAddress });
             }
+
+            this.traceEventMessenger.Publish(new TraceMessage { Owner = "Lync", Message = "Ready" });
+        }
+        
+        public static LyncPlugin Create(EventAggregator eventAggregator)
+        {
+            var publishEventMessenger = eventAggregator.GetEvent<RawPublishEventMessenger>();
+            var traceEventMessenger = eventAggregator.GetEvent<TraceEventMessenger>();
+            return new LyncPlugin(publishEventMessenger, traceEventMessenger);
         }
 
-        static void registerStatus(string alias)
+        void registerStatus(string alias)
         {
             LyncClient.GetClient().ContactManager.BeginLookup(alias, lookupCOmplete, alias);
         }
 
-        static void lookupCOmplete(IAsyncResult result)
+        void lookupCOmplete(IAsyncResult result)
         {
             var result2 = LyncClient.GetClient().ContactManager.EndLookup(result);
 
@@ -46,12 +57,14 @@
             switch (availability)
             {
                 case ContactAvailability.Free:
-                    serialPort.Write(StatusCode.Free.ToString());
+                    this.traceEventMessenger.Publish(new TraceMessage { Owner = "Lync", Message = contact.Uri + " is now free" });
+                    this.publishEventMessenger.Publish(StatusCode.Free.ToString());
                     break;
                 case ContactAvailability.Busy:
                 case ContactAvailability.BusyIdle:
                 case ContactAvailability.DoNotDisturb:
-                    serialPort.Write(StatusCode.Busy.ToString());
+                    this.traceEventMessenger.Publish(new TraceMessage { Owner = "Lync", Message = contact.Uri + " is now busy" });
+                    this.publishEventMessenger.Publish(StatusCode.Busy.ToString());
                     break;
                 case ContactAvailability.Away:
                 case ContactAvailability.FreeIdle:
@@ -59,12 +72,13 @@
                 case ContactAvailability.None:
                 case ContactAvailability.Offline:
                 case ContactAvailability.TemporarilyAway:
-                    serialPort.Write(StatusCode.Away.ToString());
+                    this.traceEventMessenger.Publish(new TraceMessage { Owner = "Lync", Message = contact.Uri + " is now away" });
+                    this.publishEventMessenger.Publish(StatusCode.Away.ToString());
                     break;
             }
         }
 
-        private static void ContactContactInformationChanged(object sender, ContactInformationChangedEventArgs e)
+        private void ContactContactInformationChanged(object sender, ContactInformationChangedEventArgs e)
         {
             foreach (var thing in e.ChangedContactInformation)
             {

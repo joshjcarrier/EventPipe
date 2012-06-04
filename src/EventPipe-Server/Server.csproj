@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D315D451-2A94-4ED7-9480-3D9663D19B7B}</ProjectGuid>
+    <ProjectGuid>{1B7DCEEA-7391-47C3-86B6-A5B846D195F6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventPipe.Server.Lync</RootNamespace>
-    <AssemblyName>EventPipe.Server.Lync</AssemblyName>
+    <RootNamespace>EventPipe.Server</RootNamespace>
+    <AssemblyName>EventPipe.Server</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,30 +31,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Lync.Model, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LyncPlugin.cs" />
+    <Compile Include="EventAggregator.cs" />
+    <Compile Include="EventMessaging\BaseEventMessenger.cs" />
+    <Compile Include="EventMessaging\DispatchableEventMessenger.cs" />
+    <Compile Include="EventMessaging\RawPublishEventMessenger.cs" />
+    <Compile Include="EventMessaging\TraceEventMessenger.cs" />
+    <Compile Include="EventMessaging\TraceMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EventPipe-Common-Data\Data.csproj">
-      <Project>{C2CEE3E5-070C-492A-884D-DF3D157DEC9E}</Project>
-      <Name>Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EventPipe-Server\Server.csproj">
-      <Project>{1B7DCEEA-7391-47C3-86B6-A5B846D195F6}</Project>
-      <Name>Server %28Server\Server%29</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

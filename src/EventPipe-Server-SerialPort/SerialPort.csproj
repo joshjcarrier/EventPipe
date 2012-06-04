@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D315D451-2A94-4ED7-9480-3D9663D19B7B}</ProjectGuid>
+    <ProjectGuid>{DC0B4377-C79A-49FF-9EE1-03179F4E8E40}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventPipe.Server.Lync</RootNamespace>
-    <AssemblyName>EventPipe.Server.Lync</AssemblyName>
+    <RootNamespace>EventPipe.Server.SerialPort</RootNamespace>
+    <AssemblyName>EventPipe.Server.SerialPort</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,9 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Lync.Model, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -42,14 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LyncPlugin.cs" />
+    <Compile Include="SerialPortPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventPipe-Common-Data\Data.csproj">
-      <Project>{C2CEE3E5-070C-492A-884D-DF3D157DEC9E}</Project>
-      <Name>Data</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EventPipe-Server\Server.csproj">
       <Project>{1B7DCEEA-7391-47C3-86B6-A5B846D195F6}</Project>
       <Name>Server %28Server\Server%29</Name>

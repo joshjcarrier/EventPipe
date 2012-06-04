@@ -65,6 +65,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="InteractiveShellWindow.xaml.cs">
+      <DependentUpon>InteractiveShellWindow.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -96,6 +99,20 @@
       <Project>{D315D451-2A94-4ED7-9480-3D9663D19B7B}</Project>
       <Name>Lync</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EventPipe-Server-SerialPort\SerialPort.csproj">
+      <Project>{DC0B4377-C79A-49FF-9EE1-03179F4E8E40}</Project>
+      <Name>SerialPort</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventPipe-Server\Server.csproj">
+      <Project>{1B7DCEEA-7391-47C3-86B6-A5B846D195F6}</Project>
+      <Name>Server %28Server\Server%29</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="InteractiveShellWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
