@@ -46,6 +46,7 @@
     <Compile Include="Events\LyncStatusChange.cs" />
     <Compile Include="Events\LyncStatusEvent.cs" />
     <Compile Include="LyncPlugin.cs" />
+    <Compile Include="LyncService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

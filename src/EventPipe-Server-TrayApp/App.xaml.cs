@@ -40,7 +40,8 @@
             var window = InteractiveShellWindow.Create(this.eventAggregator);
             window.Show();
 
-            EventPipeServer.Create(this.eventAggregator);
+            var eventPipeServer = EventPipeServer.Create(this.eventAggregator);
+            eventPipeServer.Start();
         }
 
         protected override void OnExit(ExitEventArgs e)

@@ -47,7 +47,9 @@
     <Compile Include="Events\RawPublishEvent.cs" />
     <Compile Include="Events\TraceEvent.cs" />
     <Compile Include="Events\TraceMessage.cs" />
+    <Compile Include="IPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceBundle\PluginServiceBundle.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

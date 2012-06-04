@@ -1,40 +1,26 @@
 ﻿namespace EventPipe.Server.SerialPort
 {
-    using System.Configuration;
-    using System.IO.Ports;
     using EventPipe.Common;
-    using EventPipe.Common.Events;
+    using EventPipe.Common.ServiceBundle;
 
-    public class SerialPortPlugin
+    public class SerialPortPlugin : IPlugin
     {
-        private readonly SerialPort serialPort;
-        private readonly TraceEvent traceEvent;
+        private readonly SerialPortService serialPortService;
 
-        public SerialPortPlugin(string serialPortName, RawPublishEvent publishEvent, TraceEvent traceEvent)
+        public SerialPortPlugin(PluginServiceBundle serviceBundle)
         {
-            this.traceEvent = traceEvent;
-
-            this.serialPort = new SerialPort(serialPortName, 9600, Parity.None, 8, StopBits.One);
-            this.serialPort.Open();
-
-            this.traceEvent.Publish(new TraceMessage { Owner = "SerialPort", Message =  "Opened " + serialPortName });
-            publishEvent.Subscribe(this.WriteRawPacket);
-            this.traceEvent.Publish(new TraceMessage { Owner = "SerialPort", Message = "Ready" });
-        }
-        
-        public static SerialPortPlugin Create(EventAggregator eventAggregator)
-        {
-            var serialPortName = ConfigurationManager.AppSettings["SerialPortName"];
-            var publishEventMessenger = eventAggregator.GetEvent<RawPublishEvent>();
-            var traceEventMessenger = eventAggregator.GetEvent<TraceEvent>();
-            return new SerialPortPlugin(serialPortName, publishEventMessenger, traceEventMessenger);   
+            // TODO hold on to this for proper initialization, disposal
+            this.serialPortService = SerialPortService.Create(serviceBundle.Events);
         }
 
-        public void WriteRawPacket(string payload)
+        public int BootOrder
         {
-            this.traceEvent.Publish(new TraceMessage { Owner = "SerialPort", Message = "Begin TX: " + payload });
-            this.serialPort.Write(payload);
-            this.traceEvent.Publish(new TraceMessage { Owner = "SerialPort", Message = "End TX: " + payload });
+            get { return 1; }
+        }
+
+        public void Start()
+        {
+            this.serialPortService.Start();
         }
     }
 }
