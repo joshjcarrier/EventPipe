@@ -1,9 +1,9 @@
-﻿namespace EventPipe.Server.Lync.Events
+﻿namespace EventPipe.Common.Events.Lync
 {
     public class LyncStatusChange
     {
-        public string ContactUri { get; internal set; }
-        public string Status { get; internal set; }
+        public string ContactUri { get; set; }
+        public string Status { get; set; }
 
         public override string ToString()
         {

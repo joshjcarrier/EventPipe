@@ -44,6 +44,8 @@
     <Compile Include="EventAggregator.cs" />
     <Compile Include="Events\BaseEvent.cs" />
     <Compile Include="Events\DispatchableEvent.cs" />
+    <Compile Include="Events\Lync\LyncStatusChange.cs" />
+    <Compile Include="Events\Lync\LyncStatusEvent.cs" />
     <Compile Include="Events\RawPublishEvent.cs" />
     <Compile Include="Events\TraceEvent.cs" />
     <Compile Include="Events\TraceMessage.cs" />

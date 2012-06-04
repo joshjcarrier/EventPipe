@@ -1,4 +1,4 @@
-﻿namespace EventPipe.Server.Lync.Events
+﻿namespace EventPipe.Common.Events.Lync
 {
     using System.Windows.Threading;
     using EventPipe.Common.Events;

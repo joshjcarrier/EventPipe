@@ -5,9 +5,9 @@
 
     public class LyncPlugin : IPlugin
     {
-        private readonly LyncService lyncService;
-
-        public LyncPlugin(PluginServiceBundle serviceBundle)
+        private LyncService lyncService;
+        
+        public void Initialize(PluginServiceBundle serviceBundle)
         {
             this.lyncService = LyncService.Create(serviceBundle.Events);
         }

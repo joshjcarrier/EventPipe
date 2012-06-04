@@ -5,9 +5,9 @@
 
     public class SerialPortPlugin : IPlugin
     {
-        private readonly SerialPortService serialPortService;
+        private SerialPortService serialPortService;
 
-        public SerialPortPlugin(PluginServiceBundle serviceBundle)
+        public void Initialize(PluginServiceBundle serviceBundle)
         {
             // TODO hold on to this for proper initialization, disposal
             this.serialPortService = SerialPortService.Create(serviceBundle.Events);

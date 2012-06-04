@@ -2,7 +2,7 @@
 {
     using EventPipe.Common;
     using EventPipe.Common.Events;
-    using EventPipe.Server.Lync.Events;
+    using EventPipe.Common.Events.Lync;
 
     public class NetduinoEventTransformer
     {

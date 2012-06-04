@@ -6,7 +6,7 @@
     using EventPipe.Common;
     using EventPipe.Common.Data;
     using EventPipe.Common.Events;
-    using EventPipe.Server.Lync.Events;
+    using EventPipe.Common.Events.Lync;
     using Microsoft.Lync.Model;
 
     internal class LyncService
