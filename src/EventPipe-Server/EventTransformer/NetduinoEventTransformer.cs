@@ -1,53 +1,34 @@
 ﻿namespace EventPipe.Server.EventTransformer
 {
-    using System;
-    using System.Diagnostics;
     using EventPipe.Common;
     using EventPipe.Common.Events;
-    using EventPipe.Server.Lync;
     using EventPipe.Server.Lync.Events;
-    using EventPipe.Server.SerialPort;
 
     public class NetduinoEventTransformer
     {
-        private readonly EventAggregator eventAggregator;
+        private readonly RawPublishEvent publishEvent;
+        private readonly TraceEvent traceEvent;
 
-        public NetduinoEventTransformer(EventAggregator eventAggregator)
+        public NetduinoEventTransformer(RawPublishEvent publishEvent, TraceEvent traceEvent)
         {
-            this.eventAggregator = eventAggregator;
-
-            // TODO initialize and manage this properly
-            try
-            {
-                SerialPortPlugin.Create(eventAggregator);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message + Environment.NewLine + ex.StackTrace);
-                eventAggregator.GetEvent<TraceEvent>().Publish(new TraceMessage { Owner = "SYSTEM", Message = "Serial port plugin disabled. " + ex.Message });
-            }
-
-            try
-            {
-                eventAggregator.GetEvent<LyncStatusEvent>().Subscribe(this.Transform);
-                LyncPlugin.Create(eventAggregator);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message + Environment.NewLine + ex.StackTrace);
-                eventAggregator.GetEvent<TraceEvent>().Publish(new TraceMessage { Owner = "SYSTEM", Message = "Lync integration disabled. " + ex.Message });
-            }
+            this.publishEvent = publishEvent;
+            this.traceEvent = traceEvent;
         }
 
         public static NetduinoEventTransformer Create(EventAggregator eventAggregator)
         {
-            return new NetduinoEventTransformer(eventAggregator);
+            return new NetduinoEventTransformer(eventAggregator.GetEvent<RawPublishEvent>(), eventAggregator.GetEvent<TraceEvent>());
         }
 
-        private void Transform(LyncStatusChange lyncStatusChange)
+        public void Transform(LyncStatusChange lyncStatusChange)
         {
-            this.eventAggregator.GetEvent<TraceEvent>().Publish(new TraceMessage { Owner = "SYSTEM", Message = "Transform and emit Lync status as Netduino payload: " + lyncStatusChange });
-            this.eventAggregator.GetEvent<RawPublishEvent>().Publish(lyncStatusChange.Status);
+            this.traceEvent.Publish(new TraceMessage { Owner = "SYSTEM", Message = "Transform and emit Lync status as Netduino payload: " + lyncStatusChange });
+            this.publishEvent.Publish(lyncStatusChange.Status);
+        }
+
+        public void Transform(object eventObject)
+        {
+            this.traceEvent.Publish(new TraceMessage { Owner = "SYSTEM", Message = "Transformation unknown for event: " + eventObject});
         }
     }
 }

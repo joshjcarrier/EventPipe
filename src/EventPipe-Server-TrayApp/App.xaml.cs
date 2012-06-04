@@ -6,7 +6,6 @@
     using System.Windows.Forms;
     using System.Windows.Threading;
     using EventPipe.Common;
-    using EventPipe.Server.EventTransformer;
     using MessageBox = System.Windows.MessageBox;
 
     /// <summary>
@@ -41,7 +40,7 @@
             var window = InteractiveShellWindow.Create(this.eventAggregator);
             window.Show();
 
-            NetduinoEventTransformer.Create(this.eventAggregator);
+            EventPipeServer.Create(this.eventAggregator);
         }
 
         protected override void OnExit(ExitEventArgs e)
