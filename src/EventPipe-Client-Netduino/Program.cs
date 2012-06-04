@@ -1,122 +1,99 @@
 ﻿namespace EventPipe.Client.Netduino
 {
     using System.IO.Ports;
-    using System.Text;
     using System.Threading;
+    using EventPipe.Client.Netduino.Drivers;
+    using EventPipe.Client.Netduino.IO;
     using EventPipe.Common.Data;
-    using Microsoft.SPOT.Hardware;
     using SecretLabs.NETMF.Hardware.Netduino;
 
     public class Program
     {
-        public enum LyncStatus
+        private const int availableRegisters = 4;
+
+        public Program()
         {
-            Available = 3,
-            Away = 4,
-            Busy = 8
+            using (var shiftRegisterDriver = new ShiftRegisterDriver(Pins.GPIO_PIN_D8, Pins.GPIO_PIN_D12, Pins.GPIO_PIN_D11, false, availableRegisters))
+            using (var serialPort = new SerialPort(SerialPorts.COM1, 9600, Parity.None, 8, StopBits.One))
+            using (var packetReader = new SerialPacketReader(serialPort))
+            {
+                // fancily clear out last shutdown state
+                using (var shiftRegisterSession = shiftRegisterDriver.AcquireSessionLock())
+                {
+                    ClearFancy(availableRegisters, shiftRegisterSession);
+                }
+
+                while (true)
+                {
+                    // just in case the serial port closes, try again?
+                    if (!serialPort.IsOpen)
+                    {
+                        serialPort.Open();
+                    }
+
+                    var packet = packetReader.Read();
+                    using (var shiftRegisterSession = shiftRegisterDriver.AcquireSessionLock())
+                    {
+                        ProcessPacket(packet, shiftRegisterSession);
+                    }
+                }
+            }
         }
 
         public static void Main()
         {
-            var latchPin = new OutputPort(Pins.GPIO_PIN_D8, false);
-            var clockPin = new OutputPort(Pins.GPIO_PIN_D12, false);
-            var dataPin = new OutputPort(Pins.GPIO_PIN_D11, false);
-            
-            var sp = new SerialPort(SerialPorts.COM1, 9600, Parity.None, 8, StopBits.One);
-            sp.Open();
+            new Program();
+        }
 
-            // example write
-            //var buff = Encoding.UTF8.GetBytes("+++");
-            //sp.Write(buff, 0, buff.Length);
-            //sp.Close();
-
-            // clear out last state
-            latchPin.Write(false);
-            ShiftOut((byte)0, clockPin, dataPin);
-            latchPin.Write(true);
-
-            var buff = new byte[1];
-            while (true)
+        private static void ClearFancy(int registers, ShiftRegisterDriver.Session shiftRegisterSession)
+        {
+            for (var i = 0; i < registers; i++)
             {
-                sp.Read(buff, 0, buff.Length);
+                shiftRegisterSession.Write((byte)(1 << i));
+                Thread.Sleep(150);
+            }
 
-                var chars = Encoding.UTF8.GetChars(buff);
+            shiftRegisterSession.Write(255);
+            Thread.Sleep(300);
 
-                latchPin.Write(false);
+            shiftRegisterSession.Clear();
+        }
 
-                switch (chars[0])
-                {
-                    case StatusCode.Away:
-                        ShiftOut(LyncStatus.Away, clockPin, dataPin);
-                        break;
-                    case StatusCode.Busy:
-                        ShiftOut(LyncStatus.Busy, clockPin, dataPin);
-                        break;
-                    case StatusCode.Free:
-                        ShiftOut(LyncStatus.Available, clockPin, dataPin);
-                        break;
-                }
-
-                latchPin.Write(true);
+        private static void ProcessPacket(SerialPacket packet, ShiftRegisterDriver.Session shiftRegisterSession)
+        {
+            switch (packet.Payload[0])
+            {
+                case StatusCode.Away:
+                    // third bit enabled
+                    shiftRegisterSession.Write(4);
+                    break;
+                case StatusCode.Busy:
+                    // fourth bit enabled
+                    shiftRegisterSession.Write(8);
+                    break;
+                case StatusCode.Free:
+                    // first two bits enabled
+                    shiftRegisterSession.Write(3);
+                    break;
+                case 'q':
+                    ClearFancy(8, shiftRegisterSession);
+                    break;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    shiftRegisterSession.Write(byte.Parse(packet.Payload[0].ToString()));
+                    break;
+                default:
+                    shiftRegisterSession.Clear();
+                    break;
             }
         }
-
-        private static void ShiftOut(LyncStatus value, OutputPort clock, OutputPort dataPort)
-        {
-            ShiftOut((byte)value, clock, dataPort);
-        }
-
-        private static void ShiftOut(byte value, OutputPort clock, OutputPort dataPort)
-        {
-            // Lower Clock
-            clock.Write(false);
-
-            byte mask;
-            for (int i = 0; i < 8; i++)
-            {
-                //if (_bitOrder == BitOrder.LSBFirst)
-                //   mask = (byte)(1 << i);
-                // else
-                mask = (byte)(1 << (7 - i));
-
-                dataPort.Write((value & mask) != 0);
-
-                // Raise Clock to indicate write coming
-                clock.Write(true);
-
-                // Always write data
-                dataPort.Write(true);
-
-                // Lower Clock to indicate write complete
-                clock.Write(false);
-            }
-        }
-
-        #region demo code
-
-
-        public static void DemoCounterUp(OutputPort latchPin, OutputPort clockPin, OutputPort dataPin)
-        {
-            // example counter up
-            for (int x = 0; x < 40; x++)
-            {
-                // latch pin low so can write data
-                latchPin.Write(false);
-
-                ShiftOut((byte)(x % 16), clockPin, dataPin);
-                for (int i = 0; i < 8; i++)
-                {
-                    dataPin.Write(x % (2 ^ i) == 0);
-                    clockPin.Write(true);
-                    clockPin.Write(false);
-                }
-
-                // commit changes
-                latchPin.Write(true);
-                Thread.Sleep(100);
-            }
-        }
-
-        #endregion 
     }
 }
