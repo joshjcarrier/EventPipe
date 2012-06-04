@@ -1,15 +1,15 @@
-﻿namespace EventPipe.Server.EventMessaging
+﻿namespace EventPipe.Common.Events
 {
     using System;
     using System.Collections.Generic;
     using System.Windows.Threading;
 
-    public abstract class DispatchableEventMessenger<TPayload> : BaseEventMessenger
+    public abstract class DispatchableEvent<TPayload> : BaseEvent
     {
         private readonly Dispatcher dispatcher;
         private Dictionary<SubscriptionToken, Action<TPayload>> subscribers;
 
-        protected DispatchableEventMessenger(Dispatcher dispatcher)
+        protected DispatchableEvent(Dispatcher dispatcher)
         {
             this.dispatcher = dispatcher;
             this.subscribers = new Dictionary<SubscriptionToken, Action<TPayload>>();

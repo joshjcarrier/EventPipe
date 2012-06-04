@@ -4,35 +4,37 @@
     using System.Configuration;
     using System.Diagnostics;
     using System.Linq;
+    using EventPipe.Common;
     using EventPipe.Common.Data;
-    using EventPipe.Server.EventMessaging;
+    using EventPipe.Common.Events;
+    using EventPipe.Server.Lync.Events;
     using Microsoft.Lync.Model;
 
     public class LyncPlugin
     {
-        private readonly RawPublishEventMessenger publishEventMessenger;
-        private readonly TraceEventMessenger traceEventMessenger;
+        private readonly LyncStatusEvent lyncStatusEvent;
+        private readonly TraceEvent traceEvent;
 
-        public LyncPlugin(RawPublishEventMessenger publishEventMessenger, TraceEventMessenger traceEventMessenger)
+        public LyncPlugin(LyncStatusEvent lyncStatusEvent, TraceEvent traceEvent)
         {
-            this.publishEventMessenger = publishEventMessenger;
-            this.traceEventMessenger = traceEventMessenger;
+            this.lyncStatusEvent = lyncStatusEvent;
+            this.traceEvent = traceEvent;
             
             foreach (var contactConfig in ConfigurationManager.AppSettings.AllKeys.Where(p => p.StartsWith("contact", StringComparison.OrdinalIgnoreCase)))
             {
                 var contact = ConfigurationManager.AppSettings[contactConfig];
                 var contactAddress = contact + "@micro" + "soft.com";
                 registerStatus(contactAddress);
-                traceEventMessenger.Publish(new TraceMessage { Owner = "Lync", Message = "Contact registered: " + contactAddress });
+                traceEvent.Publish(new TraceMessage { Owner = "Lync", Message = "Contact registered: " + contactAddress });
             }
 
-            this.traceEventMessenger.Publish(new TraceMessage { Owner = "Lync", Message = "Ready" });
+            this.traceEvent.Publish(new TraceMessage { Owner = "Lync", Message = "Ready" });
         }
         
         public static LyncPlugin Create(EventAggregator eventAggregator)
         {
-            var publishEventMessenger = eventAggregator.GetEvent<RawPublishEventMessenger>();
-            var traceEventMessenger = eventAggregator.GetEvent<TraceEventMessenger>();
+            var publishEventMessenger = eventAggregator.GetEvent<LyncStatusEvent>();
+            var traceEventMessenger = eventAggregator.GetEvent<TraceEvent>();
             return new LyncPlugin(publishEventMessenger, traceEventMessenger);
         }
 
@@ -57,14 +59,14 @@
             switch (availability)
             {
                 case ContactAvailability.Free:
-                    this.traceEventMessenger.Publish(new TraceMessage { Owner = "Lync", Message = contact.Uri + " is now free" });
-                    this.publishEventMessenger.Publish(StatusCode.Free.ToString());
+                    this.traceEvent.Publish(new TraceMessage { Owner = "Lync", Message = contact.Uri + " is now free" });
+                    this.lyncStatusEvent.Publish(new LyncStatusChange { ContactUri = contact.Uri, Status = StatusCode.Free.ToString() });
                     break;
                 case ContactAvailability.Busy:
                 case ContactAvailability.BusyIdle:
                 case ContactAvailability.DoNotDisturb:
-                    this.traceEventMessenger.Publish(new TraceMessage { Owner = "Lync", Message = contact.Uri + " is now busy" });
-                    this.publishEventMessenger.Publish(StatusCode.Busy.ToString());
+                    this.traceEvent.Publish(new TraceMessage { Owner = "Lync", Message = contact.Uri + " is now busy" });
+                    this.lyncStatusEvent.Publish(new LyncStatusChange { ContactUri = contact.Uri, Status = StatusCode.Busy.ToString() });
                     break;
                 case ContactAvailability.Away:
                 case ContactAvailability.FreeIdle:
@@ -72,8 +74,8 @@
                 case ContactAvailability.None:
                 case ContactAvailability.Offline:
                 case ContactAvailability.TemporarilyAway:
-                    this.traceEventMessenger.Publish(new TraceMessage { Owner = "Lync", Message = contact.Uri + " is now away" });
-                    this.publishEventMessenger.Publish(StatusCode.Away.ToString());
+                    this.traceEvent.Publish(new TraceMessage { Owner = "Lync", Message = contact.Uri + " is now away" });
+                    this.lyncStatusEvent.Publish(new LyncStatusChange { ContactUri = contact.Uri, Status = StatusCode.Away.ToString() });
                     break;
             }
         }

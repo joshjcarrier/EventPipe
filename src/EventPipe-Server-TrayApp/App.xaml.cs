@@ -1,14 +1,12 @@
 ﻿namespace EventPipe.Server.TrayApp
 {
     using System;
-    using System.Diagnostics;
     using System.Drawing;
     using System.Windows;
     using System.Windows.Forms;
     using System.Windows.Threading;
-    using EventPipe.Server.EventMessaging;
-    using EventPipe.Server.Lync;
-    using EventPipe.Server.SerialPort;
+    using EventPipe.Common;
+    using EventPipe.Server.EventTransformer;
     using MessageBox = System.Windows.MessageBox;
 
     /// <summary>
@@ -36,49 +34,14 @@
             this.tray.Visible = true;
         }
 
-        private void DebugRawPublishEventMessages(string payload)
-        {
-            Trace.WriteLine("RawPublishEventMessenger sending payload: " + payload);
-        }
-
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            this.eventAggregator.GetEvent<RawPublishEventMessenger>().Subscribe(DebugRawPublishEventMessages);
             
             var window = InteractiveShellWindow.Create(this.eventAggregator);
             window.Show();
 
-            // TODO initialize and manage this properly
-            var summary = "Serial port integration: ";
-            try
-            {
-                SerialPortPlugin.Create(this.eventAggregator);
-                summary += "enabled";
-            }
-            catch (Exception ex)
-            {
-                summary += "disabled" + Environment.NewLine + "    " + ex.Message;
-                Debug.WriteLine(ex.Message + Environment.NewLine + ex.StackTrace);
-                this.eventAggregator.GetEvent<TraceEventMessenger>().Publish(new TraceMessage { Owner = "SYSTEM", Message = "Serial port plugin disabled. " + ex.Message });
-            }
-
-            summary += Environment.NewLine;
-            summary += "Lync integration: ";
-            try
-            {
-                LyncPlugin.Create(this.eventAggregator);
-                summary += "enabled";
-            }
-            catch (Exception ex)
-            {
-                summary += "disabled" + Environment.NewLine + "    " + ex.Message;
-                Debug.WriteLine(ex.Message + Environment.NewLine + ex.StackTrace);
-                this.eventAggregator.GetEvent<TraceEventMessenger>().Publish(new TraceMessage { Owner = "SYSTEM", Message = "Lync integration disabled. " + ex.Message });
-            }
-            
-            this.tray.ShowBalloonTip(500, "EventPipe", summary, ToolTipIcon.Info);
+            NetduinoEventTransformer.Create(this.eventAggregator);
         }
 
         protected override void OnExit(ExitEventArgs e)

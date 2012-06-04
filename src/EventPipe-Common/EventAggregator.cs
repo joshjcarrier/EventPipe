@@ -1,29 +1,27 @@
-﻿namespace EventPipe.Server
+﻿namespace EventPipe.Common
 {
     using System;
     using System.Collections.Generic;
     using System.Windows.Threading;
-    using EventPipe.Server.EventMessaging;
+    using EventPipe.Common.Events;
 
     public class EventAggregator
     {
         private readonly Dictionary<Type, object> eventMessengerInstances;
+        private readonly Dispatcher dispatcher;
 
         public EventAggregator(Dispatcher dispatcher)
         {
+            this.dispatcher = dispatcher;
             this.eventMessengerInstances = new Dictionary<Type, object>();
-
-            // event messengers that require dispatchers populate here
-            this.eventMessengerInstances[typeof(RawPublishEventMessenger)] = new RawPublishEventMessenger(dispatcher);
-            this.eventMessengerInstances[typeof(TraceEventMessenger)] = new TraceEventMessenger(dispatcher);
         }
 
-        public TEventType GetEvent<TEventType>() where TEventType : BaseEventMessenger
+        public TEventType GetEvent<TEventType>() where TEventType : BaseEvent
         {
             object eventAggregate;
             if (!this.eventMessengerInstances.TryGetValue(typeof(TEventType), out eventAggregate))
             {
-                eventAggregate = Activator.CreateInstance(typeof(TEventType));
+                eventAggregate = Activator.CreateInstance(typeof(TEventType), new[] { this.dispatcher });
                 this.eventMessengerInstances[typeof(TEventType)] = eventAggregate;
             }
 

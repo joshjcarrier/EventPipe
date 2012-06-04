@@ -95,13 +95,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventPipe-Server-Lync\Lync.csproj">
-      <Project>{D315D451-2A94-4ED7-9480-3D9663D19B7B}</Project>
-      <Name>Lync</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EventPipe-Server-SerialPort\SerialPort.csproj">
-      <Project>{DC0B4377-C79A-49FF-9EE1-03179F4E8E40}</Project>
-      <Name>SerialPort</Name>
+    <ProjectReference Include="..\EventPipe-Common\Common.csproj">
+      <Project>{1B2C546A-6766-4805-A52C-4FDBCB9DFEFE}</Project>
+      <Name>Common %28Common\Common%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventPipe-Server\Server.csproj">
       <Project>{1B7DCEEA-7391-47C3-86B6-A5B846D195F6}</Project>

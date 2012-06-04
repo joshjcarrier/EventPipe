@@ -3,14 +3,15 @@
     using System;
     using System.Reflection;
     using System.Windows.Input;
-    using EventPipe.Server.EventMessaging;
+    using EventPipe.Common;
+    using EventPipe.Common.Events;
 
     /// <summary>
     /// Interaction logic for InteractiveShellWindow.xaml
     /// </summary>
     public partial class InteractiveShellWindow
     {
-        private readonly RawPublishEventMessenger publishEventMessenger;
+        private readonly RawPublishEvent publishEvent;
         private string previousInputText = "";
 
         public InteractiveShellWindow()
@@ -21,18 +22,18 @@
             this.rawInput.Focus();
         }
 
-        public InteractiveShellWindow(RawPublishEventMessenger publishEventMessenger, TraceEventMessenger traceEventMessenger) 
+        public InteractiveShellWindow(RawPublishEvent publishEvent, TraceEvent traceEvent) 
             : this()
         {
-            this.publishEventMessenger = publishEventMessenger;
+            this.publishEvent = publishEvent;
 
             // TODO would want to make sure loaded doesn't get called multiple times
-            this.Loaded += (obj, args) => traceEventMessenger.Subscribe(this.PublishRawMessage, true);
+            this.Loaded += (obj, args) => traceEvent.Subscribe(this.PublishRawMessage, true);
         }
 
         public static InteractiveShellWindow Create(EventAggregator eventAggregator)
         {
-            return new InteractiveShellWindow(eventAggregator.GetEvent<RawPublishEventMessenger>(), eventAggregator.GetEvent<TraceEventMessenger>());
+            return new InteractiveShellWindow(eventAggregator.GetEvent<RawPublishEvent>(), eventAggregator.GetEvent<TraceEvent>());
         }
         
         private void PublishRawMessage(TraceMessage payload)
@@ -71,7 +72,7 @@
             }
 
             this.outputTextBox.Text += this.rawInput.Text + Environment.NewLine;
-            this.publishEventMessenger.Publish(this.rawInput.Text);
+            this.publishEvent.Publish(this.rawInput.Text);
             this.previousInputText = this.rawInput.Text;
 
             this.rawInput.Clear();

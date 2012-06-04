@@ -1,4 +1,4 @@
-﻿namespace EventPipe.Server.EventMessaging
+﻿namespace EventPipe.Common.Events
 {
     public class TraceMessage
     {
