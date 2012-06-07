@@ -22,13 +22,7 @@
             this.eventAggregator = eventAggregator;
             this.plugins = new List<IPlugin>();
 
-            var pluginManifest = ConfigurationManager.AppSettings.AllKeys
-                .Where(p => p.StartsWith("plugin", StringComparison.OrdinalIgnoreCase))
-                .Select(p => 
-                {
-                    var pluginData = ConfigurationManager.AppSettings[p].Split(';');
-                    return new KeyValuePair<string, string>(pluginData[0], pluginData[1]);
-                });
+            var pluginManifest = ConfigurationManager.AppSettings["plugins"].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             
             // NOTE for now this requires adding to the probing path in the server app.config
             this.RegisterPlugins(pluginManifest);
@@ -50,30 +44,48 @@
             }
         }
 
-        private IPlugin LoadPlugin(string pluginAssembly, string entryPoint)
+        private IPlugin LoadPlugin(string pluginAssembly, string entryPoint, ConfigurationService configurationService)
         {
             // TODO weak reference the event aggregator
             // this resolution depends on the private bin path able to look in the plugins folder
+            // TODO load plugins into separate app domains
             var objectHandle = Activator.CreateInstance(pluginAssembly, entryPoint);
             var plugin = (IPlugin)objectHandle.Unwrap();
-            plugin.Initialize(new PluginServiceBundle { Events = this.eventAggregator });
+            plugin.Initialize(new PluginServiceBundle { Configuration = configurationService, Events = this.eventAggregator });
             return plugin;
         }
 
-        private void RegisterPlugins(IEnumerable<KeyValuePair<string, string>> pluginManifest)
+        private void RegisterPlugins(IEnumerable<string> pluginManifest)
         {
-            foreach (var pluginType in pluginManifest)
+            foreach (var pluginRootFolder in pluginManifest)
             {
                 try
                 {
-                    this.plugins.Add(this.LoadPlugin(pluginType.Key, pluginType.Value));
+                    var fileMap = new ExeConfigurationFileMap() { ExeConfigFilename = "plugins/" + pluginRootFolder + "/plugin.config" };
+                    var configuration = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+
+                    var entryPointConfig = configuration.AppSettings.Settings["EntryPoint"];
+                    if (!configuration.HasFile || entryPointConfig == null)
+                    {
+                        this.eventAggregator.GetEvent<TraceEvent>().Publish(new TraceMessage { Owner = "SYSTEM", Message = pluginRootFolder + " disabled. Could not load plugin configuration." });
+                        continue;
+                    }
+
+                    var configurationService = new ConfigurationService();
+                    foreach (KeyValueConfigurationElement configItem in configuration.AppSettings.Settings)
+                    {
+                        configurationService[configItem.Key] = configItem.Value;
+                    }
+
+                    // TODO insert shared configuration selectively
+                    var entryPoint = entryPointConfig.Value.Split(':');
+                    this.plugins.Add(this.LoadPlugin(entryPoint[0], entryPoint[1], configurationService));
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.Message + Environment.NewLine + ex.StackTrace);
                     var message = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                    var pluginName = pluginType.Value.Substring(pluginType.Value.LastIndexOf('.') + 1, pluginType.Value.Length - pluginType.Value.LastIndexOf('.') - 1);
-                    this.eventAggregator.GetEvent<TraceEvent>().Publish(new TraceMessage { Owner = "SYSTEM", Message = pluginName + " disabled. " + message });
+                    this.eventAggregator.GetEvent<TraceEvent>().Publish(new TraceMessage { Owner = "SYSTEM", Message = pluginRootFolder + " disabled. " + message });
                 }
             }
 

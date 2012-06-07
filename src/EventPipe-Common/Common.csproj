@@ -41,6 +41,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationService.cs" />
     <Compile Include="EventAggregator.cs" />
     <Compile Include="Events\BaseEvent.cs" />
     <Compile Include="Events\DispatchableEvent.cs" />

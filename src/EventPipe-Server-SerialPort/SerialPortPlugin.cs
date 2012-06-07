@@ -10,7 +10,7 @@
         public void Initialize(PluginServiceBundle serviceBundle)
         {
             // TODO hold on to this for proper initialization, disposal
-            this.serialPortService = SerialPortService.Create(serviceBundle.Events);
+            this.serialPortService = SerialPortService.Create(serviceBundle.Configuration, serviceBundle.Events);
         }
 
         public int BootOrder

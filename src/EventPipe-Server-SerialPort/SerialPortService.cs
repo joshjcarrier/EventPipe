@@ -1,6 +1,5 @@
 ﻿namespace EventPipe.Server.SerialPort
 {
-    using System.Configuration;
     using System.IO.Ports;
     using EventPipe.Common;
     using EventPipe.Common.Events;
@@ -22,9 +21,9 @@
             this.traceEvent.Publish(new TraceMessage { Owner = "SerialPort", Message = "Ready" });
         }
 
-        public static SerialPortService Create(EventAggregator eventAggregator)
+        public static SerialPortService Create(ConfigurationService configurationService, EventAggregator eventAggregator)
         {
-            var serialPortName = ConfigurationManager.AppSettings["SerialPortName"];
+            var serialPortName = configurationService["SerialPortName"];
             var publishEventMessenger = eventAggregator.GetEvent<RawPublishEvent>();
             var traceEventMessenger = eventAggregator.GetEvent<TraceEvent>();
             return new SerialPortService(serialPortName, publishEventMessenger, traceEventMessenger);   

@@ -1,23 +1,25 @@
 ﻿namespace EventPipe.Server.Lync
 {
     using System;
-    using System.Configuration;
+    using System.Collections.Generic;
     using System.Linq;
     using EventPipe.Common;
     using EventPipe.Common.Data;
     using EventPipe.Common.Events;
     using EventPipe.Common.Events.Lync;
     using Microsoft.Lync.Model;
-
+    
     internal class LyncService
     {
         private readonly LyncStatusEvent lyncStatusEvent;
         private readonly TraceEvent traceEvent;
+        private readonly IEnumerable<string> contacts;
 
-        public LyncService(LyncStatusEvent lyncStatusEvent, TraceEvent traceEvent)
+        public LyncService(IEnumerable<string> contacts, LyncStatusEvent lyncStatusEvent, TraceEvent traceEvent)
         {
             this.lyncStatusEvent = lyncStatusEvent;
             this.traceEvent = traceEvent;
+            this.contacts = contacts;
             
             if (LyncClient.GetClient().State != ClientState.SignedIn)
             {
@@ -27,21 +29,20 @@
             this.traceEvent.Publish(new TraceMessage { Owner = "Lync", Message = "Ready" });
         }
 
-        public static LyncService Create(EventAggregator eventAggregator)
+        public static LyncService Create(ConfigurationService configurationService, EventAggregator eventAggregator)
         {
+            var contacts = configurationService.Where(p => p.Key.StartsWith("contact", StringComparison.OrdinalIgnoreCase)).Select(p => p.Value + "@micro" + "soft.com");
             var publishEventMessenger = eventAggregator.GetEvent<LyncStatusEvent>();
             var traceEventMessenger = eventAggregator.GetEvent<TraceEvent>();
-            return new LyncService(publishEventMessenger, traceEventMessenger);
+            return new LyncService(contacts, publishEventMessenger, traceEventMessenger);
         }
 
         public void Start()
         {
-            foreach (var contactConfig in ConfigurationManager.AppSettings.AllKeys.Where(p => p.StartsWith("contact", StringComparison.OrdinalIgnoreCase)))
+            foreach (var contact in contacts)
             {
-                var contact = ConfigurationManager.AppSettings[contactConfig];
-                var contactAddress = contact + "@micro" + "soft.com";
-                registerStatus(contactAddress);
-                traceEvent.Publish(new TraceMessage { Owner = "Lync", Message = "Contact registered: " + contactAddress });
+                registerStatus(contact);
+                traceEvent.Publish(new TraceMessage { Owner = "Lync", Message = "Contact registered: " + contact });
             }
         }
 

@@ -9,7 +9,7 @@
         
         public void Initialize(PluginServiceBundle serviceBundle)
         {
-            this.lyncService = LyncService.Create(serviceBundle.Events);
+            this.lyncService = LyncService.Create(serviceBundle.Configuration, serviceBundle.Events);
         }
 
         public int BootOrder
