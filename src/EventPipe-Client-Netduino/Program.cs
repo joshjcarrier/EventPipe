@@ -162,7 +162,7 @@
                     memoryMappedText += text.Substring(60, Math.Min(text.Length - 60, 20));
                 }
             }
-            else
+            else if (text.Length > 20)
             {
                 memoryMappedText += RowPadding;
                 memoryMappedText += PadRight(text.Substring(20, Math.Min(text.Length - 20, 20)));
