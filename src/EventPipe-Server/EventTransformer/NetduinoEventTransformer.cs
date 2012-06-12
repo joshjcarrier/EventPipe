@@ -1,5 +1,6 @@
 ﻿namespace EventPipe.Server.EventTransformer
 {
+    using System.Text.RegularExpressions;
     using EventPipe.Common;
     using EventPipe.Common.Events;
     using EventPipe.Common.Events.Lync;
@@ -8,6 +9,7 @@
     {
         private readonly RawPublishEvent publishEvent;
         private readonly TraceEvent traceEvent;
+        private readonly Regex contactUriRegex = new Regex(@"sip:(\w+)@", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public NetduinoEventTransformer(RawPublishEvent publishEvent, TraceEvent traceEvent)
         {
@@ -29,7 +31,7 @@
         public void Transform(LyncStatusChange lyncStatusChange)
         {
             this.traceEvent.Publish(new TraceMessage { Owner = "SYSTEM", Message = "Transform and emit Lync status as Netduino payload: " + lyncStatusChange });
-            this.publishEvent.Publish(lyncStatusChange.Status);
+            this.publishEvent.Publish(lyncStatusChange.Status + contactUriRegex.Match(lyncStatusChange.ContactUri).Groups[1]);
         }
 
         public void Transform(object eventObject)

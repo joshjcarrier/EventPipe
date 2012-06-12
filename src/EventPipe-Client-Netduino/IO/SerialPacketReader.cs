@@ -16,10 +16,27 @@ namespace EventPipe.Client.Netduino.IO
 
         public SerialPacket Read()
         {
+            var payload = string.Empty;
             var buff = new byte[1];
-            this.serialPort.Read(buff, 0, buff.Length);
-            var chars = Encoding.UTF8.GetChars(buff);
-            return new SerialPacket { Payload = new string(chars) };
+            while (true)
+            {
+                if (this.serialPort.Read(buff, 0, buff.Length) > 0)
+                {
+                    var buffChars = Encoding.UTF8.GetChars(buff);
+                    if (buffChars[0] == '\n')
+                    {
+                        break;
+                    }
+
+                    payload += buffChars[0];    
+                }
+                else
+                {
+                    break;
+                }                
+            }
+
+            return new SerialPacket { Payload = payload };
         }
 
         public void Dispose()

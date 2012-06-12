@@ -37,7 +37,7 @@
         public void WriteRawPacket(string payload)
         {
             this.traceEvent.Publish(new TraceMessage { Owner = "SerialPort", Message = "Begin TX: " + payload });
-            this.serialPort.Write(payload);
+            this.serialPort.WriteLine(payload);
             this.traceEvent.Publish(new TraceMessage { Owner = "SerialPort", Message = "End TX: " + payload });
         }
     }
