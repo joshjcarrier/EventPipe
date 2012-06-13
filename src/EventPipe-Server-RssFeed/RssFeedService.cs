@@ -63,7 +63,7 @@
                 }
 
                 var lastRefreshed = DateTime.Now;
-                while (true)
+                while (DateTime.Now.Subtract(lastRefreshed).TotalMinutes < this.refreshInterval)
                 {
                     foreach (var cacheItem in cache)
                     {
