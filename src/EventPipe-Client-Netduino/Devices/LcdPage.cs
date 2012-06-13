@@ -18,7 +18,7 @@ namespace EventPipe.Client.Netduino.Devices
 
         public void Write(int row, string text)
         {
-            this.rowBuffers[row] = text.Substring(0, Math.Min(text.Length, this.columns - 1));
+            this.rowBuffers[row] = text; //.Substring(0, Math.Min(text.Length, this.columns - 1));
         }
 
         public override string ToString()
