@@ -39,8 +39,11 @@
     <Compile Include="..\EventPipe-Common-Data\StatusCode.cs">
       <Link>Data\StatusCode.cs</Link>
     </Compile>
+    <Compile Include="Devices\LcdScreen.cs" />
+    <Compile Include="Devices\LcdPage.cs" />
     <Compile Include="Drivers\ShiftRegisterDriver.cs" />
     <Compile Include="IO\SerialPacketReader.cs" />
+    <Compile Include="LyncCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>

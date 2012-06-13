@@ -47,6 +47,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EventPipe-Common-Data\Data.csproj">
+      <Project>{C2CEE3E5-070C-492A-884D-DF3D157DEC9E}</Project>
+      <Name>Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventPipe-Common\Common.csproj">
       <Project>{1B2C546A-6766-4805-A52C-4FDBCB9DFEFE}</Project>
       <Name>Common %28Common\Common%29</Name>

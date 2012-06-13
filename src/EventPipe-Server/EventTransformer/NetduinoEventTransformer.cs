@@ -2,6 +2,7 @@
 {
     using System.Text.RegularExpressions;
     using EventPipe.Common;
+    using EventPipe.Common.Data;
     using EventPipe.Common.Events;
     using EventPipe.Common.Events.Lync;
 
@@ -31,7 +32,7 @@
         public void Transform(LyncStatusChange lyncStatusChange)
         {
             this.traceEvent.Publish(new TraceMessage { Owner = "SYSTEM", Message = "Transform and emit Lync status as Netduino payload: " + lyncStatusChange });
-            this.publishEvent.Publish(lyncStatusChange.Status + contactUriRegex.Match(lyncStatusChange.ContactUri).Groups[1]);
+            this.publishEvent.Publish((char)PacketDataType.Lync + " " + lyncStatusChange.Status + " " + contactUriRegex.Match(lyncStatusChange.ContactUri).Groups[1]);
         }
 
         public void Transform(object eventObject)

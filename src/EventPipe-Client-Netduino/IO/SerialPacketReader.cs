@@ -36,7 +36,7 @@ namespace EventPipe.Client.Netduino.IO
                 }                
             }
 
-            return new SerialPacket { Payload = payload };
+            return new SerialPacket(payload);
         }
 
         public void Dispose()
