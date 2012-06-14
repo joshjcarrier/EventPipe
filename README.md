@@ -3,10 +3,10 @@
 ## Pre-requisites ##
 To fully load and compile all solution projects:
 * Lync 2010 client is running and signed in
-* Netduino on COM1 connected to PC via COM3
+* Netduino on COM1 connected to PC via Serial plugin-configured COM port
 
 ### Server ###
-* Lync 2010 SDK: www.microsoft.com/en-us/download/details.aspx?id=18898
+* Lync 2010 SDK (found in enlistment): www.microsoft.com/en-us/download/details.aspx?id=18898
 
 ### Client ###
 * .NET Micro 4.1 Runtime: http://www.netduino.com/downloads/MicroFrameworkSDK.msi
