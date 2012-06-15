@@ -18,6 +18,8 @@
                       Grid.Row="0">
             <TextBox x:Name="outputTextBox"    
                      IsReadOnly="True"
+                     IsUndoEnabled="False"
+                     TextWrapping="Wrap"
                      BorderThickness="0"
                      Background="#012456"
                      Foreground="#EEEDF0"

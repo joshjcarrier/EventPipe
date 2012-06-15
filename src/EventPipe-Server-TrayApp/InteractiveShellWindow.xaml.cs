@@ -38,7 +38,12 @@
         
         private void PublishRawMessage(TraceMessage payload)
         {
-            this.outputTextBox.Text += payload + Environment.NewLine;
+            if (this.outputTextBox.Text.Length > 1000000)
+            {
+                this.outputTextBox.Clear();
+            }
+
+            this.outputTextBox.AppendText(payload + Environment.NewLine);
             this.outputScrollViewer.ScrollToBottom();
         }
 
