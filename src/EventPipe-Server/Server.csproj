@@ -57,6 +57,22 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\lib\Microsoft Team Foundation Server\10.0.40219.1\Microsoft.TeamFoundation.Client.dll">
+      <Link>Plugins\EventPipe.Server.TfsClient\Microsoft.TeamFoundation.Client.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\lib\Microsoft Team Foundation Server\10.0.40219.1\Microsoft.TeamFoundation.Common.dll">
+      <Link>Plugins\EventPipe.Server.TfsClient\Microsoft.TeamFoundation.Common.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\lib\Microsoft Team Foundation Server\10.0.40219.1\Microsoft.TeamFoundation.dll">
+      <Link>Plugins\EventPipe.Server.TfsClient\Microsoft.TeamFoundation.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\lib\Microsoft Team Foundation Server\10.0.40219.1\Microsoft.TeamFoundation.WorkItemTracking.Client.dll">
+      <Link>Plugins\EventPipe.Server.TfsClient\Microsoft.TeamFoundation.WorkItemTracking.Client.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\EventPipe-Server-RssFeed\bin\Debug\EventPipe.Server.RssFeed.dll">
       <Link>Plugins\EventPipe.Server.RssFeed\EventPipe.Server.RssFeed.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
