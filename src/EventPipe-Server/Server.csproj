@@ -73,6 +73,10 @@
       <Link>Plugins\EventPipe.Server.TfsClient\Microsoft.TeamFoundation.WorkItemTracking.Client.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\EventPipe-Server-CodeFlow\bin\Debug\EventPipe.Server.CodeFlow.dll">
+      <Link>Plugins\EventPipe.Server.CodeFlow\EventPipe.Server.CodeFlow.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\EventPipe-Server-RssFeed\bin\Debug\EventPipe.Server.RssFeed.dll">
       <Link>Plugins\EventPipe.Server.RssFeed\EventPipe.Server.RssFeed.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -105,6 +109,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\EventPipe-Server-CodeFlow\plugin.config">
+      <Link>Plugins\EventPipe.Server.CodeFlow\plugin.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\EventPipe-Server-Lync\plugin.config">
       <Link>Plugins\EventPipe.Server.Lync\plugin.config</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

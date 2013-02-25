@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="2f694a6c-6650-449e-ab8b-9b619a8f144b" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://codeflow/Services/ReviewService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="ReviewService.disco" MetadataType="Disco" ID="92ea4683-2867-4c7c-b8ae-e16a1e36716b" SourceId="1" SourceUrl="http://codeflow/Services/ReviewService.svc?disco" />
+    <MetadataFile FileName="ReviewService.wsdl" MetadataType="Wsdl" ID="82567756-5a45-446b-a439-036b2fabab4b" SourceId="1" SourceUrl="http://codeflow/Services/ReviewService.svc?wsdl" />
+    <MetadataFile FileName="ReviewService.xsd" MetadataType="Schema" ID="743921be-9011-48dc-9ed5-4afcec83a18a" SourceId="1" SourceUrl="http://codeflow/Services/ReviewService.svc?xsd=xsd0" />
+    <MetadataFile FileName="ReviewService1.xsd" MetadataType="Schema" ID="c9726e34-e4ba-4c62-9480-817ba3100b01" SourceId="1" SourceUrl="http://codeflow/Services/ReviewService.svc?xsd=xsd1" />
+    <MetadataFile FileName="ReviewService2.xsd" MetadataType="Schema" ID="ff6c7fde-217b-444c-ba8e-9e450f277d43" SourceId="1" SourceUrl="http://codeflow/Services/ReviewService.svc?xsd=xsd2" />
+    <MetadataFile FileName="ReviewService3.xsd" MetadataType="Schema" ID="e5bbd627-b008-4894-8247-015b13397cce" SourceId="1" SourceUrl="http://codeflow/Services/ReviewService.svc?xsd=xsd3" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>
