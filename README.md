@@ -19,6 +19,9 @@ To use Serial port server plugin
 To use TFS server plugin:
 * A TFS 2010 server with server-side work item queries prepared
 
+To use CodeFlow server plugin:
+* A CodeFlow server with ReviewService endpoint exposed; windows authentication
+
 ### Netduino Client ###
 * .NET Micro 4.1 Runtime: http://www.netduino.com/downloads/MicroFrameworkSDK.msi
 * Netduino SDK v4.1.0 (64-bit): http://www.netduino.com/downloads/netduinosdk_64bit.exe
