@@ -1,6 +1,7 @@
 ﻿namespace EventPipe.Server.CodeFlow
 {
     using System;
+    using System.Linq;
     using System.ServiceModel;
     using System.Threading;
     using EventPipe.Common;
@@ -63,30 +64,29 @@
                 endpointAddressBuilder.Uri = new Uri("http://codeflow/Services/ReviewService.svc");
                 endpointAddressBuilder.Identity = new DnsEndpointIdentity("localhost");
                
-                // get a reference to the team project collection
-                using (var reviewServiceClient = new ReviewServiceClient(new WSHttpBinding(), endpointAddressBuilder.ToEndpointAddress()))
+                // cache needs to be refreshed
+                DateTime lastRefreshed = DateTime.MinValue;
+
+                string payloadCache = null;
+                while (true)
                 {
-                    reviewServiceClient.Open();
-                    
-                    // cache needs to be refreshed
-                    DateTime lastRefreshed = DateTime.MinValue;
-
-                    string payloadCache = null;
-                    while (true)
+                    if (DateTime.Now.Subtract(lastRefreshed).TotalMinutes > this.refreshInterval)
                     {
-                        if (DateTime.Now.Subtract(lastRefreshed).TotalMinutes > this.refreshInterval)
+                        // try up to 3 times
+                        for (var retries = 0; retries < 3; retries++)
                         {
-                            // try up to 3 times
-                            for (var retries = 0; retries < 3; retries++)
+                            try
                             {
-                                try
+                                this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Loading stats." });
+
+                                // get a reference to the team project collection
+                                using (var reviewServiceClient = new ReviewServiceClient(new WSHttpBinding(), endpointAddressBuilder.ToEndpointAddress()))
                                 {
-                                    this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Loading stats." });
-
-                                    var authorAssignedCount = reviewServiceClient.GetActiveReviewsForReviewer(this.authorWatch).Length;
-                                    var authorCreatedCount = reviewServiceClient.GetActiveReviewsForAuthor(this.authorWatch).Length;
-                                    var authorAssignedIndirectCount = reviewServiceClient.GetActiveReviewsForReviewer(this.secondAuthorWatch).Length;
-
+                                    reviewServiceClient.Open();
+                                    var authorAssignedCount = reviewServiceClient.GetActiveReviewsForReviewer(this.authorWatch).Where(p => DateTime.Now.Subtract(p.LastUpdatedOn).TotalDays <= 7).Count();
+                                    var authorCreatedCount = reviewServiceClient.GetActiveReviewsForAuthor(this.authorWatch).Where(p => DateTime.Now.Subtract(p.LastUpdatedOn).TotalDays <= 7).Count();
+                                    var authorAssignedIndirectCount = reviewServiceClient.GetActiveReviewsForReviewer(this.secondAuthorWatch).Where(p => DateTime.Now.Subtract(p.LastUpdatedOn).TotalDays <= 7).Count();
+                    
                                     payloadCache = string.Format(
                                         "{0} {1,-20}{3,-20}{2,-20}{4,-20}", 
                                         (char)PacketDataType.Text, 
@@ -94,32 +94,32 @@
                                         "for " + this.authorWatch + ": " + authorAssignedCount,
                                         "by " + this.authorWatch + ": " + authorCreatedCount,
                                         "for " + this.secondAuthorWatch + ": " + authorAssignedIndirectCount);
-
-                                    this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Built stats: " + payloadCache });
-                                }
-                                catch (Exception ex)
-                                {
-                                    this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Failed to refresh: " + ex.Message });
-                                    continue;
                                 }
 
-                                lastRefreshed = DateTime.Now;
-
-                                this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Cached result." });
-                                break;
+                                this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Built stats: " + payloadCache });
                             }
-                        }
-                        else
-                        {
-                            this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Reloading cached." });
-                        }
+                            catch (Exception ex)
+                            {
+                                this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Failed to refresh: " + ex.Message });
+                                continue;
+                            }
 
-                        this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Broadcast result: " + payloadCache });
-                        this.publishEvent.Publish(payloadCache);
+                            lastRefreshed = DateTime.Now;
 
-                        // sleep i said
-                        Thread.Sleep(this.announceInterval);
+                            this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Cached result." });
+                            break;
+                        }
                     }
+                    else
+                    {
+                        this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Reloading cached." });
+                    }
+
+                    this.traceEvent.Publish(new TraceMessage { Owner = "CodeFlow", Message = "Broadcast result: " + payloadCache });
+                    this.publishEvent.Publish(payloadCache);
+
+                    // sleep i said
+                    Thread.Sleep(this.announceInterval);
                 }
             }
             catch (Exception ex)
